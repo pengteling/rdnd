@@ -1,18 +1,29 @@
 import React, { useState } from "react";
+import { colors } from "@atlaskit/theme";
 import styled from "@xstyled/styled-components";
 import { DragDropContext } from "react-beautiful-dnd";
 import Column from "./Column";
+import { borderRadius } from "../styles/constants";
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between; /* 列之间均匀分布 */
-  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 自动适配列宽 */
   gap: 16px; /* 列之间的间距 */
+  padding: 16px;
   width: 100%; /* 确保容器宽度适配屏幕 */
   box-sizing: border-box; /* 包括 padding 在内计算宽度 */
 `;
-
+const WeekendContainer = styled.div`
+  display: grid;
+  grid-template-rows: 1fr 1fr; /* 周六和周日平分高度 */
+  gap: 8px; /* 周六和周日之间的间距 */
+  height: 100%; /* 填满父容器 */
+  background-color: ${colors.N20};
+  border-radius: ${borderRadius}px;
+  box-shadow: ${({ isDragging }) =>
+    isDragging ? "0 2px 8px rgba(0, 0, 0, 0.2)" : "none"};
+  transition: box-shadow 0.2s ease;
+`;
 const initialData = {
   columns: {
     "monday": {
@@ -126,6 +137,11 @@ const Board = () => {
     <DragDropContext onDragEnd={onDragEnd}>
       <Container>
         {data.columnOrder.map((columnId, index) => {
+          if (columnId === "saturday" || columnId === "sunday") {
+            // 渲染周末列
+            return null; // 周六和周日单独处理
+          }
+
           const column = data.columns[columnId];
           return (
             <Column
@@ -137,6 +153,22 @@ const Board = () => {
             />
           );
         })}
+
+        {/* 渲染周六和周日 */}
+        <WeekendContainer>
+          <Column
+            id="saturday"
+            title="Saturday"
+            quotes={data.columns["saturday"].quotes}
+            index={5} // 周六的索引
+          />
+          <Column
+            id="sunday"
+            title="Sunday"
+            quotes={data.columns["sunday"].quotes}
+            index={6} // 周日的索引
+          />
+        </WeekendContainer>
       </Container>
     </DragDropContext>
   );
