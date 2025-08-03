@@ -3,10 +3,8 @@ import styled from "@xstyled/styled-components";
 import { colors } from "@atlaskit/theme";
 import { grid, borderRadius } from "../styles/constants";
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import Title from "../styles/title";
+
 const Container = styled.div`
-  margin: 8px; /* 列之间的间距 */
-  flex: 1; /* 每列平分容器宽度 */
   display: flex;
   flex-direction: column;
   background-color: ${colors.N20};
@@ -14,12 +12,13 @@ const Container = styled.div`
   box-shadow: ${({ isDragging }) =>
     isDragging ? "0 2px 8px rgba(0, 0, 0, 0.2)" : "none"};
   transition: box-shadow 0.2s ease;
+  overflow: hidden;
 `;
 
 const Header = styled.div`
   display: flex;
+  justify-content: space-between; /* 左右对齐 */
   align-items: center;
-  justify-content: center;
   padding: ${grid}px;
   border-top-left-radius: ${borderRadius}px;
   border-top-right-radius: ${borderRadius}px;
@@ -29,6 +28,17 @@ const Header = styled.div`
   &:hover {
     background-color: ${colors.G50};
   }
+`;
+
+const DateText = styled.div`
+  font-size: 14px;
+  font-weight: bold;
+  color: ${colors.N800};
+`;
+
+const DayText = styled.div`
+  font-size: 12px;
+  color: ${colors.N500};
 `;
 
 const TodoItem = styled.div`
@@ -43,7 +53,18 @@ const TodoItem = styled.div`
 `;
 
 const Column = (props) => {
-  const { title, quotes, index } = props;
+  const { title, quotes, index, date } = props;
+
+  // 格式化日期和星期
+  const formatDate = (date) => {
+    const options = { day: "numeric" };
+    return date.toLocaleDateString(undefined, options);
+  };
+
+  const formatDay = (date) => {
+    const options = { weekday: "short" }; // 简写星期
+    return date.toLocaleDateString(undefined, options);
+  };
 
   return (
     <Droppable droppableId={props.id} type="TODO">
@@ -54,7 +75,8 @@ const Column = (props) => {
           isDragging={dropSnapshot.isDraggingOver}
         >
           <Header>
-            <Title aria-label={`${title} todo list`}>{title}</Title>
+            <DateText>{formatDate(date)}</DateText>
+            <DayText>{formatDay(date)}</DayText>
           </Header>
           {quotes.map((quote, quoteIndex) => (
             <Draggable

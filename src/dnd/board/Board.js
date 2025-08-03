@@ -89,6 +89,19 @@ const initialData = {
 const Board = () => {
   const [data, setData] = useState(initialData);
 
+  // 获取当前周的日期
+  const getWeekDates = () => {
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // 周一
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      return date;
+    });
+  };
+
+  const weekDates = getWeekDates();
+
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
@@ -103,11 +116,6 @@ const Board = () => {
 
     const sourceColumn = data.columns[source.droppableId];
     const destinationColumn = data.columns[destination.droppableId];
-
-    if (!sourceColumn || !destinationColumn) {
-      console.error("Invalid source or destination column");
-      return;
-    }
 
     const sourceQuotes = Array.from(sourceColumn.quotes);
     const [movedQuote] = sourceQuotes.splice(source.index, 1);
@@ -131,19 +139,12 @@ const Board = () => {
       ...data,
       columns: updatedColumns,
     });
-
-    console.log("Drag ended:", JSON.stringify(data));
   };
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Container>
         {data.columnOrder.map((columnId, index) => {
-          if (columnId === "saturday" || columnId === "sunday") {
-            // 渲染周末列
-            return null; // 周六和周日单独处理
-          }
-
           const column = data.columns[columnId];
           return (
             <Column
@@ -151,26 +152,10 @@ const Board = () => {
               id={column.id}
               title={column.title}
               quotes={column.quotes}
-              index={index}
+              date={weekDates[index]} // 传递对应的日期
             />
           );
         })}
-
-        {/* 渲染周六和周日 */}
-        <WeekendContainer>
-          <Column
-            id="saturday"
-            title="Saturday"
-            quotes={data.columns["saturday"].quotes}
-            index={5} // 周六的索引
-          />
-          <Column
-            id="sunday"
-            title="Sunday"
-            quotes={data.columns["sunday"].quotes}
-            index={6} // 周日的索引
-          />
-        </WeekendContainer>
       </Container>
     </DragDropContext>
   );
