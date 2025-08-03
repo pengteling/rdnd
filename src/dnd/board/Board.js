@@ -33,6 +33,15 @@ const SomedayContainer = styled.div`
   background-color: ${colors.N10};
   border-radius: ${borderRadius}px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    grid-column: 1 / -1; /* 标题占据整行 */
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: ${colors.N800};
+    margin-bottom: 16px;
+  }
 `;
 const initialData = {
   columns: {
@@ -229,6 +238,9 @@ const Board = ({ currentDate }) => {
 
         {/* 渲染 Someday 列 */}
         <SomedayContainer>
+          <h2 style={{ gridColumn: "1 / -1", textAlign: "center", marginBottom: "16px" }}>
+            Someday
+          </h2>
           {data.somedayOrder.map((columnId) => {
             const column = data.columns[columnId];
             return (
@@ -237,6 +249,7 @@ const Board = ({ currentDate }) => {
                 id={column.id}
                 title={column.title}
                 quotes={column.quotes}
+                date={null} // Someday 列不需要日期
               />
             );
           })}

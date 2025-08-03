@@ -52,21 +52,41 @@ const TodoItem = styled.div`
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 `;
 
+const Content = styled.div`
+  display: grid;
+  grid-template-rows: repeat(${({ rows }) => rows}, 1fr); /* 动态行数 */
+  gap: 8px; /* 行之间的间距 */
+  flex-grow: 1;
+  border-top: 1px solid ${colors.N30}; /* 第一行的顶部边框 */
+`;
+
+const Row = styled.div`
+  border-bottom: 1px solid ${colors.N30}; /* 每行的下划线 */
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 40px; /* 每行的最小高度 */
+`;
+
 const Column = (props) => {
   const { title, quotes, index, date } = props;
 
   // 格式化日期和星期
-    const formatDate = (date) => {
+  const formatDate = (date) => {
     if (!date) return ""; // 如果 date 为 undefined，返回空字符串
     const options = { day: "numeric" };
     return date.toLocaleDateString(undefined, options);
   };
-  
+
   const formatDay = (date) => {
     if (!date) return ""; // 如果 date 为 undefined，返回空字符串
     const options = { weekday: "short" }; // 简写星期
     return date.toLocaleDateString(undefined, options);
   };
+
+  // 动态行数：周一到周五为 10 行，周六和周日为 4 行
+  const rows = title === "Saturday" || title === "Sunday" ? 4 : 10;
 
   return (
     <Droppable droppableId={props.id} type="TODO">
@@ -80,29 +100,30 @@ const Column = (props) => {
             <DateText>{formatDate(date)}</DateText>
             <DayText>{formatDay(date)}</DayText>
           </Header>
-          {quotes.map((quote, quoteIndex) => (
-            <Draggable
-              key={quote.id}
-              draggableId={quote.id}
-              index={quoteIndex}
-            >
-              {(quoteProvided, quoteSnapshot) => (
-                <TodoItem
-                  ref={quoteProvided.innerRef}
-                  {...quoteProvided.draggableProps}
-                  {...quoteProvided.dragHandleProps}
-                  isDragging={quoteSnapshot.isDragging}
-                >
-                  {quote.content}
-                </TodoItem>
-              )}
-            </Draggable>
-          ))}
-          {dropProvided.placeholder}
+          <Content rows={rows}>
+            {quotes.map((quote, quoteIndex) => (
+              <Draggable
+                key={quote.id}
+                draggableId={quote.id}
+                index={quoteIndex}
+              >
+                {(quoteProvided, quoteSnapshot) => (
+                  <Row
+                    ref={quoteProvided.innerRef}
+                    {...quoteProvided.draggableProps}
+                    {...quoteProvided.dragHandleProps}
+                    isDragging={quoteSnapshot.isDragging}
+                  >
+                    {quote.content}
+                  </Row>
+                )}
+              </Draggable>
+            ))}
+            {dropProvided.placeholder}
+          </Content>
         </Container>
       )}
     </Droppable>
   );
 };
-
 export default Column;
