@@ -88,19 +88,33 @@ const initialData = {
 
 const Board = () => {
   const [data, setData] = useState(initialData);
+  const [currentDate, setCurrentDate] = useState(new Date()); // 当前日期状态
 
   // 获取当前周的日期
-  const getWeekDates = () => {
-    const today = new Date();
-    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // 周一
+  const getWeekDates = (date) => {
+    const startOfWeek = new Date(date.setDate(date.getDate() - date.getDay() + 1)); // 周一
     return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      return date;
+      const weekDate = new Date(startOfWeek);
+      weekDate.setDate(startOfWeek.getDate() + i);
+      return weekDate;
     });
   };
 
-  const weekDates = getWeekDates();
+  const weekDates = getWeekDates(new Date(currentDate)); // 动态计算当前周的日期
+
+  // 切换到上一周
+  const handlePreviousWeek = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() - 7);
+    setCurrentDate(newDate);
+  };
+
+  // 切换到下一周
+  const handleNextWeek = () => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(currentDate.getDate() + 7);
+    setCurrentDate(newDate);
+  };
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -141,24 +155,53 @@ const Board = () => {
     });
   };
 
-  return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Container>
-        {data.columnOrder.map((columnId, index) => {
-          const column = data.columns[columnId];
-          return (
-            <Column
-              key={column.id}
-              id={column.id}
-              title={column.title}
-              quotes={column.quotes}
-              date={weekDates[index]} // 传递对应的日期
-            />
-          );
-        })}
-      </Container>
-    </DragDropContext>
+    return (
+    <>
+      {/* 拖拽面板 */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Container>
+          {data.columnOrder.map((columnId, index) => {
+            if (columnId === "saturday") {
+              // 渲染周六和周日共用一列
+              return (
+                <WeekendContainer key="weekend">
+                  <Column
+                    id="saturday"
+                    title="Saturday"
+                    quotes={data.columns["saturday"].quotes}
+                    date={weekDates[5]} // 周六的日期
+                  />
+                  <Column
+                    id="sunday"
+                    title="Sunday"
+                    quotes={data.columns["sunday"].quotes}
+                    date={weekDates[6]} // 周日的日期
+                  />
+                </WeekendContainer>
+              );
+            }
+  
+            // 渲染其他列
+            if (columnId === "sunday") {
+              return null; // 周日已经在周六的逻辑中处理，跳过
+            }
+  
+            const column = data.columns[columnId];
+            return (
+              <Column
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                quotes={column.quotes}
+                date={weekDates[index]} // 传递对应的日期
+              />
+            );
+          })}
+        </Container>
+      </DragDropContext>
+    </>
   );
 };
 
 export default Board;
+
