@@ -53,7 +53,7 @@ export default function App() {
       
 
       {/* 拖拽面板 */}
-      <Board initial={data.medium} withScrollableColumns />
+      <Board initial={data.medium} currentDate={currentDate} withScrollableColumns />
     </>
   );
 }

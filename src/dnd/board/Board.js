@@ -86,9 +86,8 @@ const initialData = {
   columnOrder: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
 };
 
-const Board = () => {
+const Board = ({ currentDate }) => {
   const [data, setData] = useState(initialData);
-  const [currentDate, setCurrentDate] = useState(new Date()); // 当前日期状态
 
   // 获取当前周的日期
   const getWeekDates = (date) => {
@@ -101,20 +100,6 @@ const Board = () => {
   };
 
   const weekDates = getWeekDates(new Date(currentDate)); // 动态计算当前周的日期
-
-  // 切换到上一周
-  const handlePreviousWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(currentDate.getDate() - 7);
-    setCurrentDate(newDate);
-  };
-
-  // 切换到下一周
-  const handleNextWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(currentDate.getDate() + 7);
-    setCurrentDate(newDate);
-  };
 
   const onDragEnd = (result) => {
     const { source, destination } = result;
@@ -155,7 +140,7 @@ const Board = () => {
     });
   };
 
-    return (
+  return (
     <>
       {/* 拖拽面板 */}
       <DragDropContext onDragEnd={onDragEnd}>
@@ -180,12 +165,12 @@ const Board = () => {
                 </WeekendContainer>
               );
             }
-  
+
             // 渲染其他列
             if (columnId === "sunday") {
               return null; // 周日已经在周六的逻辑中处理，跳过
             }
-  
+
             const column = data.columns[columnId];
             return (
               <Column
@@ -204,4 +189,5 @@ const Board = () => {
 };
 
 export default Board;
+
 
