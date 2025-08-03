@@ -153,45 +153,68 @@ const Board = ({ currentDate }) => {
 
   const weekDates = getWeekDates(new Date(currentDate)); // 动态计算当前周的日期
 
-  const onDragEnd = (result) => {
-    const { source, destination } = result;
-
-    if (!destination) return;
-
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    ) {
-      return;
-    }
-
-    const sourceColumn = data.columns[source.droppableId];
-    const destinationColumn = data.columns[destination.droppableId];
-
-    const sourceQuotes = Array.from(sourceColumn.quotes);
-    const [movedQuote] = sourceQuotes.splice(source.index, 1);
-
-    const destinationQuotes = Array.from(destinationColumn.quotes);
-    destinationQuotes.splice(destination.index, 0, movedQuote);
-
-    const updatedColumns = {
-      ...data.columns,
-      [source.droppableId]: {
-        ...sourceColumn,
-        quotes: sourceQuotes,
-      },
-      [destination.droppableId]: {
-        ...destinationColumn,
-        quotes: destinationQuotes,
-      },
+      const onDragEnd = (result) => {
+      const { source, destination } = result;
+    
+      // 如果没有目标位置，直接返回
+      if (!destination) return;
+    
+      // 如果拖拽到同一位置，直接返回
+      if (
+        source.droppableId === destination.droppableId &&
+        source.index === destination.index
+      ) {
+        return;
+      }
+    
+      // 获取源列
+      const sourceColumn = data.columns[source.droppableId];
+      const sourceQuotes = Array.from(sourceColumn.quotes);
+    
+      if (source.droppableId === destination.droppableId) {
+        // 同列内排序逻辑
+        const [movedQuote] = sourceQuotes.splice(source.index, 1);
+        sourceQuotes.splice(destination.index, 0, movedQuote);
+    
+        const updatedColumns = {
+          ...data.columns,
+          [source.droppableId]: {
+            ...sourceColumn,
+            quotes: sourceQuotes,
+          },
+        };
+    
+        setData((prevData) => ({
+          ...prevData,
+          columns: updatedColumns,
+        }));
+        return;
+      }
+    
+      // 跨列拖拽逻辑
+      const destinationColumn = data.columns[destination.droppableId];
+      const destinationQuotes = Array.from(destinationColumn.quotes);
+    
+      const [movedQuote] = sourceQuotes.splice(source.index, 1);
+      destinationQuotes.splice(destination.index, 0, movedQuote);
+    
+      const updatedColumns = {
+        ...data.columns,
+        [source.droppableId]: {
+          ...sourceColumn,
+          quotes: sourceQuotes,
+        },
+        [destination.droppableId]: {
+          ...destinationColumn,
+          quotes: destinationQuotes,
+        },
+      };
+    
+      setData((prevData) => ({
+        ...prevData,
+        columns: updatedColumns,
+      }));
     };
-
-    setData({
-      ...data,
-      columns: updatedColumns,
-    });
-  };
-
   return (
     <>
       {/* 拖拽面板 */}
