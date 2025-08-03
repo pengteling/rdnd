@@ -231,6 +231,7 @@ const Board = ({ currentDate }) => {
                 title={column.title}
                 quotes={column.quotes}
                 date={weekDates[index]} // 传递对应的日期
+                rows={10}
               />
             );
           })}
@@ -249,7 +250,8 @@ const Board = ({ currentDate }) => {
                 id={column.id}
                 title={column.title}
                 quotes={column.quotes}
-                date={null} // Someday 列不需要日期
+                hideHeader={true} // 隐藏头部
+                rows={3} // 默认 3 行
               />
             );
           })}

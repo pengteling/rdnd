@@ -53,8 +53,8 @@ const TodoItem = styled.div`
 `;
 
 const Content = styled.div`
-  display: grid;
-  grid-template-rows: repeat(${({ rows }) => rows}, 1fr); /* 动态行数 */
+  display: flex;
+  flex-direction: column; /* 改为垂直布局 */
   gap: 8px; /* 行之间的间距 */
   flex-grow: 1;
   border-top: 1px solid ${colors.N30}; /* 第一行的顶部边框 */
@@ -70,7 +70,7 @@ const Row = styled.div`
 `;
 
 const Column = (props) => {
-  const { title, quotes, index, date } = props;
+  const { title, quotes, index, date, hideHeader, rows } = props;
 
   // 格式化日期和星期
   const formatDate = (date) => {
@@ -85,9 +85,6 @@ const Column = (props) => {
     return date.toLocaleDateString(undefined, options);
   };
 
-  // 动态行数：周一到周五为 10 行，周六和周日为 4 行
-  const rows = title === "Saturday" || title === "Sunday" ? 4 : 10;
-
   return (
     <Droppable droppableId={props.id} type="TODO">
       {(dropProvided, dropSnapshot) => (
@@ -96,10 +93,12 @@ const Column = (props) => {
           {...dropProvided.droppableProps}
           isDragging={dropSnapshot.isDraggingOver}
         >
-          <Header>
-            <DateText>{formatDate(date)}</DateText>
-            <DayText>{formatDay(date)}</DayText>
-          </Header>
+          {!hideHeader && (
+            <Header>
+              <DateText>{formatDate(date)}</DateText>
+              <DayText>{formatDay(date)}</DayText>
+            </Header>
+          )}
           <Content rows={rows}>
             {quotes.map((quote, quoteIndex) => (
               <Draggable
