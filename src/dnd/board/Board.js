@@ -24,6 +24,16 @@ const WeekendContainer = styled.div`
     isDragging ? "0 2px 8px rgba(0, 0, 0, 0.2)" : "none"};
   transition: box-shadow 0.2s ease;
 `;
+const SomedayContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 列均分 */
+  gap: 16px; /* 列之间的间距 */
+  padding: 16px;
+  margin-top: 32px; /* 与上方内容的间距 */
+  background-color: ${colors.N10};
+  border-radius: ${borderRadius}px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+`;
 const initialData = {
   columns: {
     "monday": {
@@ -82,8 +92,41 @@ const initialData = {
         { id: "todo-14", content: "Plan next week" },
       ],
     },
+    "someday": {
+      id: "someday",
+      title: "Someday",
+      quotes: [
+        { id: "todo-15", content: "Learn a new skill" },
+        { id: "todo-16", content: "Start a side project" },
+      ],
+    },
+    "maybe": {
+      id: "maybe",
+      title: "Maybe",
+      quotes: [
+        { id: "todo-17", content: "Consider a new hobby" },
+        { id: "todo-18", content: "Explore new opportunities" },
+      ],
+    },
+    "later": {
+      id: "later",
+      title: "Later",
+      quotes: [
+        { id: "todo-19", content: "Plan a vacation" },
+        { id: "todo-20", content: "Organize files" },
+      ],
+    },
   },
-  columnOrder: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+  columnOrder: [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ],
+  somedayOrder: ["someday", "maybe", "later"], // 新增的 Someday 列顺序
 };
 
 const Board = ({ currentDate }) => {
@@ -183,6 +226,21 @@ const Board = ({ currentDate }) => {
             );
           })}
         </Container>
+
+        {/* 渲染 Someday 列 */}
+        <SomedayContainer>
+          {data.somedayOrder.map((columnId) => {
+            const column = data.columns[columnId];
+            return (
+              <Column
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                quotes={column.quotes}
+              />
+            );
+          })}
+        </SomedayContainer>
       </DragDropContext>
     </>
   );

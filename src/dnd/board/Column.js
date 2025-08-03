@@ -56,12 +56,14 @@ const Column = (props) => {
   const { title, quotes, index, date } = props;
 
   // 格式化日期和星期
-  const formatDate = (date) => {
+    const formatDate = (date) => {
+    if (!date) return ""; // 如果 date 为 undefined，返回空字符串
     const options = { day: "numeric" };
     return date.toLocaleDateString(undefined, options);
   };
-
+  
   const formatDay = (date) => {
+    if (!date) return ""; // 如果 date 为 undefined，返回空字符串
     const options = { weekday: "short" }; // 简写星期
     return date.toLocaleDateString(undefined, options);
   };
