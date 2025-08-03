@@ -131,6 +131,8 @@ const Board = () => {
       ...data,
       columns: updatedColumns,
     });
+
+    console.log("Drag ended:", JSON.stringify(data));
   };
 
   return (

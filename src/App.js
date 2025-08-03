@@ -36,7 +36,7 @@ export default function App() {
   return (
     <>
       {/* 顶部导航栏 */}
-      <Row className="align-items-center justify-content-between p-3 bg-light border-bottom">
+      <Row className="align-items-center justify-content-between p-3 bg-light border-bottom" noGutters>
         <Col xs="auto">
           <h4>{formatDate(currentDate)}</h4>
         </Col>
