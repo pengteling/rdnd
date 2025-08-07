@@ -85,12 +85,10 @@ const Column = (props) => {
     return date.toLocaleDateString(undefined, options);
   };
 
-  return (
+    return (
     <Droppable droppableId={props.id} type="TODO">
       {(dropProvided, dropSnapshot) => (
         <Container
-          ref={dropProvided.innerRef}
-          {...dropProvided.droppableProps}
           isDragging={dropSnapshot.isDraggingOver}
         >
           {!hideHeader && (
@@ -99,7 +97,10 @@ const Column = (props) => {
               <DayText>{formatDay(date)}</DayText>
             </Header>
           )}
-          <Content rows={rows}>
+          <Content rows={rows}
+            ref={dropProvided.innerRef} // 将 ref 绑定到 Content，而不是 Container
+            {...dropProvided.droppableProps}
+          >
             {quotes.map((quote, quoteIndex) => (
               <Draggable
                 key={quote.id}
@@ -118,7 +119,7 @@ const Column = (props) => {
                 )}
               </Draggable>
             ))}
-            {dropProvided.placeholder}
+            {dropProvided.placeholder} {/* 确保 placeholder 在 Content 内 */}
           </Content>
         </Container>
       )}
