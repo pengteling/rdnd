@@ -55,7 +55,7 @@ const TodoItem = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column; /* 改为垂直布局 */
-  gap: 8px; /* 行之间的间距 */
+  gap: 0px; /* 行之间的间距 */
   flex-grow: 1;
   border-top: 1px solid ${colors.N30}; /* 第一行的顶部边框 */
 `;
@@ -67,6 +67,36 @@ const Row = styled.div`
   align-items: center;
   justify-content: flex-start;
   min-height: 40px; /* 每行的最小高度 */
+`;
+
+const InputRow = styled.div`
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 40px; /* 与其他行保持一致的高度 */
+  border: 1px solid transparent; /* 默认无边框 */
+  border-radius: ${borderRadius}px;
+  transition: border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+  background-color: transparent; /* 默认背景透明 */
+  opacity: 0; /* 默认不可见 */
+
+  &:hover,&:focus-within {
+    border-color: ${colors.N30}; /* 鼠标悬停时显示边框 */
+    background-color: ${colors.N10}; /* 鼠标悬停时背景颜色变化 */
+    opacity: 1; /* 鼠标悬停时完全可见 */
+  }
+
+  input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    padding: 4px;
+    background: transparent;
+    color: ${colors.N800};
+    opacity: 1; /* 输入框始终可见 */
+  }
 `;
 
 const Column = (props) => {
@@ -85,19 +115,18 @@ const Column = (props) => {
     return date.toLocaleDateString(undefined, options);
   };
 
-    return (
+  return (
     <Droppable droppableId={props.id} type="TODO">
       {(dropProvided, dropSnapshot) => (
-        <Container
-          isDragging={dropSnapshot.isDraggingOver}
-        >
+        <Container isDragging={dropSnapshot.isDraggingOver}>
           {!hideHeader && (
             <Header>
               <DateText>{formatDate(date)}</DateText>
               <DayText>{formatDay(date)}</DayText>
             </Header>
           )}
-          <Content rows={rows}
+          <Content
+            rows={rows}
             ref={dropProvided.innerRef} // 将 ref 绑定到 Content，而不是 Container
             {...dropProvided.droppableProps}
           >
@@ -120,10 +149,25 @@ const Column = (props) => {
               </Draggable>
             ))}
             {dropProvided.placeholder} {/* 确保 placeholder 在 Content 内 */}
+
+            {/* 输入框 */}
+            <InputRow>
+              <input
+                type="text"
+                placeholder="Add a task..." // 输入框的占位符
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    console.log("New task:", e.target.value);
+                    e.target.value = ""; // 清空输入框
+                  }
+                }}
+              />
+            </InputRow>
           </Content>
         </Container>
       )}
     </Droppable>
   );
 };
+
 export default Column;
