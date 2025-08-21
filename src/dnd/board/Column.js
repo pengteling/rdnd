@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@xstyled/styled-components";
 import { colors } from "@atlaskit/theme";
 import { grid, borderRadius } from "../styles/constants";
@@ -77,11 +77,18 @@ const InputRow = styled.div`
   min-height: 40px; /* 与其他行保持一致的高度 */
   border: 1px solid transparent; /* 默认无边框 */
   border-radius: ${borderRadius}px;
-  transition: border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+  // transition: border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
   background-color: transparent; /* 默认背景透明 */
   opacity: 0; /* 默认不可见 */
+  // 只在需要过渡时应用过渡效果
+  transition: ${({ shouldTransition }) =>
+    shouldTransition ? 'transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, opacity 0.2s ease' : 'none'};
+    
+transform: ${({ isDraggingFromThisWith }) =>
+    isDraggingFromThisWith ? 'translateY(-48px)' : 'translateY(0)'}; /* 向上移动一行的高度 */
 
-  &:hover,&:focus-within {
+
+  &:focus-within {
     border-color: ${colors.N30}; /* 鼠标悬停时显示边框 */
     background-color: ${colors.N10}; /* 鼠标悬停时背景颜色变化 */
     opacity: 1; /* 鼠标悬停时完全可见 */
@@ -101,6 +108,9 @@ const InputRow = styled.div`
 
 const Column = (props) => {
   const { title, quotes, index, date, hideHeader, rows } = props;
+  // 添加状态来跟踪拖拽状态和过渡状态
+  const [isDraggingFromThisWith, setIsDraggingFromThisWith] = useState(false);
+  const [shouldTransition, setShouldTransition] = useState(false);
 
   // 格式化日期和星期
   const formatDate = (date) => {
@@ -114,6 +124,22 @@ const Column = (props) => {
     const options = { weekday: "short" }; // 简写星期
     return date.toLocaleDateString(undefined, options);
   };
+
+  // 监听拖拽状态变化
+  useEffect(() => {
+    if (props.draggingFromThisWith) {
+      setIsDraggingFromThisWith(true);
+      setShouldTransition(true);
+    } else if (isDraggingFromThisWith) {
+      // 当拖拽结束时，设置一个短暂的延迟再重置过渡状态
+      const timer = setTimeout(() => {
+        setIsDraggingFromThisWith(false);
+        setShouldTransition(false);
+      }, 200); // 与动画持续时间匹配
+
+      return () => clearTimeout(timer);
+    }
+  }, [props.draggingFromThisWith]);
 
   return (
     <Droppable droppableId={props.id} type="TODO">
@@ -129,6 +155,15 @@ const Column = (props) => {
             rows={rows}
             ref={dropProvided.innerRef} // 将 ref 绑定到 Content，而不是 Container
             {...dropProvided.droppableProps}
+            onClick={(e) => {
+              // 选中其中的input输入框
+              if (e.target.tagName !== 'INPUT') {
+                const input = e.currentTarget.querySelector('input');
+                if (input) {
+                  input.focus();
+                }
+              }
+            }} // 阻止点击事件冒泡
           >
             {quotes.map((quote, quoteIndex) => (
               <Draggable
@@ -151,8 +186,11 @@ const Column = (props) => {
             {dropProvided.placeholder} {/* 确保 placeholder 在 Content 内 */}
 
             {/* 输入框 */}
-            <InputRow>
+            <InputRow
+              isDraggingFromThisWith={!!dropSnapshot.draggingFromThisWith}
+              shouldTransition={shouldTransition}>
               <input
+
                 type="text"
                 placeholder="Add a task..." // 输入框的占位符
                 onKeyDown={(e) => {
